@@ -4,9 +4,9 @@ import (
 	"time"
 )
 
-func NewCache(cleanUpInterval, invalidAfter time.Duration) (newCache *Cache) {
+func NewCache(cleanUpInterval, dataExpireAfter time.Duration) (newCache *Cache) {
 	newCache = &Cache{
-		cacheDataTimeDuration: invalidAfter,
+		cacheDataTimeDuration: dataExpireAfter,
 		cachedData:            make(map[string]*data),
 		cancelCacheCleanChan:  make(chan bool),
 		cacheCleanerTicker:    time.NewTicker(cleanUpInterval),
