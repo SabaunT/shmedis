@@ -1,4 +1,3 @@
-// todo добавить удаление по ключу и просто чистку
 package memcache
 
 import (
@@ -44,13 +43,39 @@ func (cache *Cache) Get(key string) *data {
 }
 
 func (cache *Cache) Keys() []string {
-	keys := make([]string, 0, len(cache.cachedData))
-
 	cache.mtx.Lock()
+	keys := make([]string, 0, len(cache.cachedData))
 	for key := range cache.cachedData {
 		keys = append(keys, key)
 	}
 	cache.mtx.Unlock()
 
 	return keys
+}
+
+func (cache *Cache) StopCleaner() {
+	go func() {
+		cache.cancelCacheCleanChan <- true
+	}()
+	cache.cacheCleanerTicker.Stop()
+}
+
+func (cache *Cache) RemoveKey(key string) {
+	cache.mtx.Lock()
+	cache.unsafeRemove(key)
+	cache.mtx.Unlock()
+}
+
+func (cache *Cache) cleanCache() {
+	cache.mtx.Lock()
+	for k, v := range cache.cachedData {
+		if time.Now().After(v.expirationDate) {
+			cache.unsafeRemove(k)
+		}
+	}
+	cache.mtx.Unlock()
+}
+
+func (cache *Cache) unsafeRemove(key string) {
+	delete(cache.cachedData, key)
 }

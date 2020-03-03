@@ -1,7 +1,6 @@
 package memcache
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -25,7 +24,7 @@ LOOP:
 		case <-cache.cancelCacheCleanChan:
 			break LOOP
 		case <-cache.cacheCleanerTicker.C:
-			fmt.Println("CleanUp!")
+			cache.cleanCache()
 		}
 	}
 }

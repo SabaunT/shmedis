@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"local/shmedis/memcache"
 	"time"
-	"local/medis/memcache"
 )
 
 func main() {
