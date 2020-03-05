@@ -12,7 +12,6 @@ import (
 type Shmedis struct {
 	connScanner *bufio.Scanner
 	encoder *json.Encoder
-	decoder *json.Decoder
 }
 
 func Client(port string) *Shmedis {
