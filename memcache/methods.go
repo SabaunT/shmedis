@@ -7,7 +7,7 @@ import (
 
 type Cache struct {
 	cacheDataTimeDuration time.Duration
-	cachedData            map[string]*data
+	cachedData            map[string]*Data
 
 	mtx sync.Mutex
 
@@ -15,22 +15,22 @@ type Cache struct {
 	cancelCacheCleanChan chan bool
 }
 
-type data struct {
-	expirationDate time.Time
-	dataValue      interface{}
+type Data struct {
+	ExpirationDate time.Time
+	DataValue      interface{}
 }
 
 func (cache *Cache) Set(key string, value interface{}) {
 	cache.mtx.Lock()
 	expirationForNewData := time.Now().Add(cache.cacheDataTimeDuration)
-	cache.cachedData[key] = &data{
-		expirationDate: expirationForNewData,
-		dataValue:      value,
+	cache.cachedData[key] = &Data{
+		ExpirationDate: expirationForNewData,
+		DataValue:      value,
 	}
 	cache.mtx.Unlock()
 }
 
-func (cache *Cache) Get(key string) *data {
+func (cache *Cache) Get(key string) *Data {
 	cache.mtx.Lock()
 	retValue, found := cache.cachedData[key]
 	cache.mtx.Unlock()
@@ -53,11 +53,21 @@ func (cache *Cache) Keys() []string {
 	return keys
 }
 
-func (cache *Cache) StopCleaner() {
+func (cache *Cache) stopCache() {
+	cache.stopCleaner()
+	cache.mtx.Lock()
+	for k := range cache.cachedData {
+		cache.unsafeRemove(k)
+	}
+	cache.mtx.Lock()
+}
+
+func (cache *Cache) stopCleaner() {
 	go func() {
 		cache.cancelCacheCleanChan <- true
 	}()
 	cache.cacheCleanerTicker.Stop()
+
 }
 
 func (cache *Cache) RemoveKey(key string) {
@@ -66,10 +76,10 @@ func (cache *Cache) RemoveKey(key string) {
 	cache.mtx.Unlock()
 }
 
-func (cache *Cache) cleanCache() {
+func (cache *Cache) cleanExpired() {
 	cache.mtx.Lock()
 	for k, v := range cache.cachedData {
-		if time.Now().After(v.expirationDate) {
+		if time.Now().After(v.ExpirationDate) {
 			cache.unsafeRemove(k)
 		}
 	}

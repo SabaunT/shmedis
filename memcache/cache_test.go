@@ -22,8 +22,8 @@ func TestCache_GetSet(t *testing.T) {
 	expected := 123
 	actual := newCache.Get("first")
 
-	if actual.dataValue != expected {
-		t.Errorf("General test failed. Got: %v", actual.dataValue)
+	if actual.DataValue != expected {
+		t.Errorf("General test failed. Got: %v", actual.DataValue)
 	}
 }
 
@@ -41,7 +41,7 @@ func TestCache_RemoveKeyC(t *testing.T) {
 	newCache := prepareCache()
 	newCache.RemoveKey("first")
 
-	var expected *data = nil
+	var expected *Data = nil
 	actual := newCache.Get("first")
 	if actual != expected {
 		t.Error("Remove test failed. Got: ", actual)
@@ -61,12 +61,12 @@ func TestCache_CleanerOn(t *testing.T) {
 
 func TestCache_StopCleaner(t *testing.T) {
 	newCache := prepareCache()
-	newCache.StopCleaner()
+	newCache.stopCleaner()
 
 	time.Sleep(10 * time.Second)
 	actual := newCache.Get("first")
 
 	if actual == nil {
-		t.Errorf("StopCleaner test failed. Got: %v", actual)
+		t.Errorf("stopCleaner test failed. Got: %v", actual)
 	}
 }
