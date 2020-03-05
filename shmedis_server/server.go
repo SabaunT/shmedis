@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"local/shmedis/util"
+	"local/shmedis/utils"
 	"local/shmedis/memcache"
 	"net"
 	"time"
@@ -13,12 +13,12 @@ import (
 func Up(port string, cleanUpInterval, dataExpireAfter time.Duration) {
 	address := fmt.Sprintf(":%v", port)
 	listener, err := net.Listen("tcp", address)
-	util.HandleError(err)
+	utils.HandleError(err)
 
 	cache := memcache.NewCache(cleanUpInterval, dataExpireAfter)
 	for {
 		connection, err := listener.Accept()
-		util.HandleError(err)
+		utils.HandleError(err)
 		go handleConnection(connection, cache)
 	}
 }
@@ -29,10 +29,10 @@ func handleConnection(conn net.Conn, cache *memcache.Cache) {
 	connectionWriter := json.NewEncoder(conn)
 
 	for connectionScanner.Scan() {
-		req := &util.Request{}
+		req := &utils.Request{}
 		scannedMessage := connectionScanner.Bytes()
 		err := json.Unmarshal(scannedMessage, req)
-		util.HandleError(err)
+		utils.HandleError(err)
 
 		if req.Method == "SET" {
 			fmt.Println("Got SET command with args:", req.Arguments)
@@ -44,7 +44,7 @@ func handleConnection(conn net.Conn, cache *memcache.Cache) {
 			ret := cache.Get(req.Arguments.Key)
 
 			err := connectionWriter.Encode(ret)
-			util.HandleError(err)
+			utils.HandleError(err)
 		}
 	}
 }

@@ -1,4 +1,4 @@
-package util
+package utils
 
 func HandleError(err error) {
 	if err != nil {

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"local/shmedis/memcache"
-	"local/shmedis/util"
+	"local/shmedis/utils"
 	"net"
 )
 
@@ -18,7 +18,7 @@ type Shmedis struct {
 func Client(port string) *Shmedis {
 	address := fmt.Sprintf(":%v", port)
 	connection, err := net.Dial("tcp", address)
-	util.HandleError(err)
+	utils.HandleError(err)
 
 	shmedisClient := &Shmedis{
 		connScanner: bufio.NewScanner(connection),
@@ -28,38 +28,38 @@ func Client(port string) *Shmedis {
 }
 
 func (shmedisClient *Shmedis) Get(key string) *memcache.Data {
-	arguments := util.Arguments{
+	arguments := utils.Arguments{
 		Key: key,
 		Value: nil,
 	}
-	request := util.Request{
+	request := utils.Request{
 		Method: "GET",
 		Arguments: arguments,
 	}
 	err := shmedisClient.encoder.Encode(request)
-	util.HandleError(err)
+	utils.HandleError(err)
 
 	ret := &memcache.Data{}
 	for shmedisClient.connScanner.Scan() {
 		scannedMessage := shmedisClient.connScanner.Bytes()
 		err := json.Unmarshal(scannedMessage, ret)
-		util.HandleError(err)
+		utils.HandleError(err)
 		break
 	}
 	return ret
 }
 
 func (shmedisClient *Shmedis) Set(key string, value interface{}) {
-	arguments := util.Arguments{
+	arguments := utils.Arguments{
 		Key: key,
 		Value: value,
 	}
-	request := util.Request{
+	request := utils.Request{
 		Method: "SET",
 		Arguments: arguments,
 	}
 	err := shmedisClient.encoder.Encode(request)
-	util.HandleError(err)
+	utils.HandleError(err)
 }
 //
 //func (shmedisClient *Shmedis) Keys() []string {
