@@ -1,11 +1,11 @@
 package utils
 
 type Request struct {
-	Method string
+	Method    string
 	Arguments Arguments
 }
 
 type Arguments struct {
-	Key string
+	Key   string
 	Value interface{}
 }

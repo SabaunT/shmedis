@@ -59,7 +59,7 @@ func (cache *Cache) stopCache() {
 	for k := range cache.cachedData {
 		cache.unsafeRemove(k)
 	}
-	cache.mtx.Lock()
+	cache.mtx.Unlock()
 }
 
 func (cache *Cache) stopCleaner() {

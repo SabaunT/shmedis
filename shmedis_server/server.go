@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"local/shmedis/utils"
 	"local/shmedis/memcache"
+	"local/shmedis/utils"
 	"net"
 	"time"
 )
@@ -16,6 +16,7 @@ func Up(port string, cleanUpInterval, dataExpireAfter time.Duration) {
 	utils.HandleError(err)
 
 	cache := memcache.NewCache(cleanUpInterval, dataExpireAfter)
+
 	for {
 		connection, err := listener.Accept()
 		utils.HandleError(err)
@@ -45,6 +46,24 @@ func handleConnection(conn net.Conn, cache *memcache.Cache) {
 
 			err := connectionWriter.Encode(ret)
 			utils.HandleError(err)
+		}
+
+		if req.Method == "KEYS" {
+			fmt.Println("Got KEYS requests")
+			ret := cache.Keys()
+
+			err := connectionWriter.Encode(ret)
+			utils.HandleError(err)
+		}
+
+		if req.Method == "REMOVE" {
+			fmt.Println("Got REMOVE for key", req.Arguments.Key)
+			cache.RemoveKey(req.Arguments.Key)
+		}
+
+		if req.Method == "CLOSE" {
+			fmt.Println("Deleting cache")
+			memcache.DeleteCache(cache)
 		}
 	}
 }
