@@ -1,16 +1,16 @@
-package shmedis_server
+package shmedis_sevice
 
 import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"local/shmedis/memcache"
-	"local/shmedis/utils"
+	"github.com/SabaunT/shmedis/memcache"
+	"github.com/SabaunT/shmedis/utils"
 	"net"
 	"time"
 )
 
-func Up(port string, cleanUpInterval, dataExpireAfter time.Duration) {
+func UpServer(port string, cleanUpInterval, dataExpireAfter time.Duration) {
 	address := fmt.Sprintf(":%v", port)
 	listener, err := net.Listen("tcp", address)
 	utils.HandleError(err)

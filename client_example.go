@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"local/shmedis/shmedis_client"
+	"github.com/SabaunT/shmedis/shmedis_sevice"
 )
 
 func main() {
 	address := "8080"
-	a := shmedis_client.Client(address)
+	a := shmedis_sevice.Client(address)
 	a.Set("1", 123)
 	fmt.Println("1")
 	k := a.Get("1")

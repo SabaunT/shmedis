@@ -1,11 +1,11 @@
-package shmedis_client
+package shmedis_sevice
 
 import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"local/shmedis/memcache"
-	"local/shmedis/utils"
+	"github.com/SabaunT/shmedis/memcache"
+	"github.com/SabaunT/shmedis/utils"
 	"net"
 )
 
