@@ -17,11 +17,6 @@ func NewCache(cleanUpInterval, dataExpireAfter time.Duration) (newCache *Cache) 
 	return
 }
 
-func DeleteCache(cache *Cache) {
-	cache.stopCache()
-	cache = nil
-}
-
 func cleaner(cache *Cache) {
 LOOP:
 	for {
@@ -32,4 +27,9 @@ LOOP:
 			cache.cleanExpired()
 		}
 	}
+}
+
+func DeleteCache(cache *Cache) {
+	cache.stopCache()
+	cache = nil
 }

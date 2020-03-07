@@ -35,33 +35,30 @@ func handleConnection(conn net.Conn, cache *memcache.Cache) {
 		err := json.Unmarshal(scannedMessage, req)
 		utils.HandleError(err)
 
-		if req.Method == "SET" {
+		switch m := req.Method; m {
+		case "SET":
 			fmt.Println("Got SET command with args:", req.Arguments)
 			cache.Set(req.Arguments.Key, req.Arguments.Value)
-		}
 
-		if req.Method == "GET" {
+		case "GET":
 			fmt.Println("Got GET. Returning value under key", req.Arguments.Key)
 			ret := cache.Get(req.Arguments.Key)
 
 			err := connectionWriter.Encode(ret)
 			utils.HandleError(err)
-		}
 
-		if req.Method == "KEYS" {
+		case "KEYS":
 			fmt.Println("Got KEYS requests")
 			ret := cache.Keys()
 
 			err := connectionWriter.Encode(ret)
 			utils.HandleError(err)
-		}
 
-		if req.Method == "REMOVE" {
+		case "REMOVE":
 			fmt.Println("Got REMOVE for key", req.Arguments.Key)
 			cache.RemoveKey(req.Arguments.Key)
-		}
 
-		if req.Method == "CLOSE" {
+		case "CLOSE":
 			fmt.Println("Deleting cache")
 			memcache.DeleteCache(cache)
 		}

@@ -19,5 +19,5 @@ func main() {
 	fmt.Println("got", b.DataValue)
 	a.Set("1", 1234)
 	a.Close()
-	fmt.Println("keys", a.Keys())
+	//fmt.Println("keys", a.Keys())
 }

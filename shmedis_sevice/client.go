@@ -10,9 +10,7 @@ import (
 )
 
 type Shmedis struct {
-	conn        net.Conn
-	connScanner *bufio.Scanner
-	connEncoder *json.Encoder
+	conn net.Conn
 }
 
 func Client(port string) *Shmedis {
@@ -21,87 +19,70 @@ func Client(port string) *Shmedis {
 	utils.HandleError(err)
 
 	shmedisClient := &Shmedis{
-		conn:        connection,
-		connScanner: bufio.NewScanner(connection),
-		connEncoder: json.NewEncoder(connection),
+		conn: connection,
 	}
 	return shmedisClient
 }
 
 func (shmedisClient *Shmedis) Get(key string) *memcache.Data {
-	arguments := utils.Arguments{
-		Key:   key,
-		Value: nil,
-	}
-	request := utils.Request{
-		Method:    "GET",
-		Arguments: arguments,
-	}
-	err := shmedisClient.connEncoder.Encode(request)
-	utils.HandleError(err)
+	request := shmedisClient.createRequestBody("GET", key, nil)
+	shmedisClient.sendRequest(request)
 
 	ret := &memcache.Data{}
-	for shmedisClient.connScanner.Scan() {
-		scannedMessage := shmedisClient.connScanner.Bytes()
-		err := json.Unmarshal(scannedMessage, ret)
-		utils.HandleError(err)
-		break
-	}
+	shmedisClient.encapsulateServerResponseIn(ret)
 	return ret
 }
 
 func (shmedisClient *Shmedis) Set(key string, value interface{}) {
-	arguments := utils.Arguments{
-		Key:   key,
-		Value: value,
-	}
-	request := utils.Request{
-		Method:    "SET",
-		Arguments: arguments,
-	}
-	err := shmedisClient.connEncoder.Encode(request)
-	utils.HandleError(err)
+	request := shmedisClient.createRequestBody("SET", key, value)
+	shmedisClient.sendRequest(request)
 }
 
 func (shmedisClient *Shmedis) Keys() []string {
-	request := utils.Request{
-		Method:    "KEYS",
-		Arguments: utils.Arguments{},
-	}
-	err := shmedisClient.connEncoder.Encode(request)
-	utils.HandleError(err)
+	request := shmedisClient.createRequestBody("KEYS", "", nil)
+	shmedisClient.sendRequest(request)
 
 	ret := new([]string)
-	for shmedisClient.connScanner.Scan() {
-		scannedMessage := shmedisClient.connScanner.Bytes()
-		err := json.Unmarshal(scannedMessage, ret)
-		utils.HandleError(err)
-		break
-	}
+	shmedisClient.encapsulateServerResponseIn(ret)
 	return *ret
 }
 
 func (shmedisClient *Shmedis) RemoveKey(key string) {
-	arguments := utils.Arguments{
-		Key:   key,
-		Value: nil,
-	}
-	request := utils.Request{
-		Method:    "REMOVE",
-		Arguments: arguments,
-	}
-	err := shmedisClient.connEncoder.Encode(request)
-	utils.HandleError(err)
+	request := shmedisClient.createRequestBody("REMOVE", key, nil)
+	shmedisClient.sendRequest(request)
 }
 
 func (shmedisClient *Shmedis) Close() {
-	request := utils.Request{
-		Method:    "CLOSE",
-		Arguments: utils.Arguments{},
-	}
-	err := shmedisClient.connEncoder.Encode(request)
-	utils.HandleError(err)
+	request := shmedisClient.createRequestBody("CLOSE", "", nil)
+	shmedisClient.sendRequest(request)
 
 	shmedisClient.conn.Close()
 	fmt.Println("Connection to memecache server is closed.")
+}
+
+func (shmedisClient *Shmedis) createRequestBody(method, key string, value interface{}) utils.Request {
+	req := utils.Request{
+		Method: method,
+		Arguments: utils.Arguments{
+			Key:   key,
+			Value: value,
+		},
+	}
+	return req
+}
+
+func (shmedisClient *Shmedis) sendRequest(request utils.Request) {
+	connectionEncoder := json.NewEncoder(shmedisClient.conn)
+	err := connectionEncoder.Encode(request)
+	utils.HandleError(err)
+}
+
+func (shmedisClient *Shmedis) encapsulateServerResponseIn(in interface{}) {
+	connectionScanner := bufio.NewScanner(shmedisClient.conn)
+	for connectionScanner.Scan() {
+		scannedMessage := connectionScanner.Bytes()
+		err := json.Unmarshal(scannedMessage, in)
+		utils.HandleError(err)
+		break
+	}
 }
