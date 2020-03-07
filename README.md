@@ -12,8 +12,8 @@ server_example.go
 package main
 
 import (
-	"github.com/SabaunT/shmedis/shmedis_sevice"
-	"time"
+    "github.com/SabaunT/shmedis/shmedis_sevice"
+    "time"
 )
 
 func main() {
@@ -34,8 +34,8 @@ client_example.go
 package main
 
 import (
-	"fmt"
-	"github.com/SabaunT/shmedis/shmedis_sevice"
+    "fmt"
+    "github.com/SabaunT/shmedis/shmedis_sevice"
 )
 
 func main() {
