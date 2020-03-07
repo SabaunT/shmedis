@@ -6,7 +6,13 @@ import (
 )
 
 func main() {
+	// port
 	address := "8080"
-	duration, _ := time.ParseDuration("3s")
-	shmedis_sevice.UpServer(address, duration, duration)
+
+	// each 3 seconds server will run cache cleaner
+	cleanerInterval, _ := time.ParseDuration("3s")
+
+	// TTL for each key
+	expirationDuration, _ := time.ParseDuration("3s")
+	shmedis_sevice.UpServer(address, cleanerInterval, expirationDuration)
 }

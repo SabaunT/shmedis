@@ -6,18 +6,26 @@ import (
 )
 
 func main() {
+	// port at which server is
 	address := "8080"
 	a := shmedis_sevice.Client(address)
+
+	// "SET"
 	a.Set("1", 123)
-	fmt.Println("1")
+
+	// "GET"
 	k := a.Get("1")
-	fmt.Println("client got value", k.DataValue)
-	fmt.Println("keys", a.Keys())
+	fmt.Println("client got value", k.DataValue) // 123
+
+	// "KEYS"
+	fmt.Println("keys", a.Keys()) // [1]
+
+	// "REMOVE"
 	a.RemoveKey("1")
-	fmt.Println("keys", a.Keys())
+	fmt.Println("keys", a.Keys()) // []
+
 	b := a.Get("1")
-	fmt.Println("got", b.DataValue)
-	a.Set("1", 1234)
-	a.Close()
-	//fmt.Println("keys", a.Keys())
+	fmt.Println("got", b.DataValue) // nil
+
+	a.Close() // Connection to memecache server is closed.
 }
