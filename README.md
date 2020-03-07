@@ -17,15 +17,15 @@ import (
 )
 
 func main() {
-    // port
-	address := "8080"
+    // port 
+    address := "8080"
 
-    // each 3 seconds server will run cache cleaner
-	cleanerInterval, _ := time.ParseDuration("3s")
+    // each 3 seconds server will run cache cleaner 
+    cleanerInterval, _ := time.ParseDuration("3s")
 
     // TTL for each key
     expirationDuration, _ := time.ParseDuration("3s")
-	shmedis_sevice.UpServer(address, cleanerInterval, expirationDuration)
+    shmedis_sevice.UpServer(address, cleanerInterval, expirationDuration)
 }
 ```
 
@@ -40,27 +40,27 @@ import (
 
 func main() {
     // port at which server is
-	address := "8080"
-	a := shmedis_sevice.Client(address)
+    address := "8080"
+    a := shmedis_sevice.Client(address)
 
     // "SET"
-	a.Set("1", 123)
+    a.Set("1", 123)
 
     // "GET"
-	k := a.Get("1")
-	fmt.Println("client got value", k.DataValue) // 123
+    k := a.Get("1")
+    fmt.Println("client got value", k.DataValue) // 123
     
     // "KEYS"
-	fmt.Println("keys", a.Keys()) // [1]
+    fmt.Println("keys", a.Keys()) // [1]
 	
     // "REMOVE"
     a.RemoveKey("1")
-	fmt.Println("keys", a.Keys()) // []
+    fmt.Println("keys", a.Keys()) // []
 	
     b := a.Get("1")
-	fmt.Println("got", b.DataValue) // nil
+    fmt.Println("got", b.DataValue) // nil
 
-	a.Close() // Connection to memecache server is closed.
+    a.Close() // Connection to memecache server is closed.
 }
 ```
 
